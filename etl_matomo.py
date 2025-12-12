@@ -6,9 +6,6 @@ from datetime import datetime
 
 MATOMO_API_URL = "https://matomo.com/api"
 
-# ============================
-# 1. EXTRACT
-# ============================
 
 response = requests.get(
     MATOMO_API_URL,
@@ -21,9 +18,7 @@ response = requests.get(
 
 data = response.json()
 
-# ============================
-# 2. TRANSFORM
-# ============================
+
 
 metrics = {
     "date": datetime.now(),
@@ -31,9 +26,7 @@ metrics = {
     "conversions": data.get("nb_conversions", 0)
 }
 
-# ============================
-# 3. LOAD (PostgreSQL simulé)
-# ============================
+
 
 conn = psycopg2.connect(
     dbname="analytics",
@@ -58,3 +51,4 @@ cur.close()
 conn.close()
 
 print("ETL exécuté avec succès")
+

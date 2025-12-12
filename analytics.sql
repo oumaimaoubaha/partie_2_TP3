@@ -1,5 +1,5 @@
 
--- 9. Taux de conversion par canal
+
 SELECT
     channel,
     COUNT(DISTINCT CASE WHEN converted THEN user_id END) * 100.0
@@ -8,14 +8,12 @@ FROM sessions
 GROUP BY channel;
 
 
--- 10. Revenu moyen par utilisateur (ARPU)
 SELECT
     SUM(revenue) / COUNT(DISTINCT user_id) AS arpu
 FROM events
 WHERE event_type = 'purchase';
 
 
--- 11. Top 5 des heures avec le meilleur taux de conversion
 SELECT
     EXTRACT(HOUR FROM start_time) AS hour,
     COUNT(CASE WHEN converted THEN 1 END) * 100.0 / COUNT(*) AS conversion_rate
@@ -25,7 +23,6 @@ ORDER BY conversion_rate DESC
 LIMIT 5;
 
 
--- 12. Cohort analysis : rétention des utilisateurs par mois d'inscription
 WITH cohorts AS (
     SELECT
         user_id,
@@ -41,3 +38,4 @@ FROM sessions
 JOIN cohorts USING (user_id)
 GROUP BY cohort_month, activity_month
 ORDER BY cohort_month, activity_month;
+

@@ -1,0 +1,60 @@
+import requests
+import psycopg2
+from datetime import datetime
+
+
+
+MATOMO_API_URL = "https://matomo.com/api"
+
+# ============================
+# 1. EXTRACT
+# ============================
+
+response = requests.get(
+    MATOMO_API_URL,
+    params={
+        "module": "API",
+        "method": "VisitsSummary.get",
+        "format": "JSON"
+    }
+)
+
+data = response.json()
+
+# ============================
+# 2. TRANSFORM
+# ============================
+
+metrics = {
+    "date": datetime.now(),
+    "visits": data.get("nb_visits", 0),
+    "conversions": data.get("nb_conversions", 0)
+}
+
+# ============================
+# 3. LOAD (PostgreSQL simulé)
+# ============================
+
+conn = psycopg2.connect(
+    dbname="analytics",
+    user="postgres",
+    password="password",
+    host="localhost",
+    port="5432"
+)
+
+cur = conn.cursor()
+
+cur.execute(
+    """
+    INSERT INTO daily_metrics (date, visits, conversions)
+    VALUES (%s, %s, %s)
+    """,
+    (metrics["date"], metrics["visits"], metrics["conversions"])
+)
+
+conn.commit()
+cur.close()
+conn.close()
+
+print("ETL exécuté avec succès")
